@@ -38,6 +38,9 @@ public class AuthenticationController : ControllerBase
             var token = GenerateJwtToken(userToken.Login);
             return Ok(new { token });
         }
+        else if (!IsValidUser(userToken.Login) && userToken.Password == this._JwtSettings.SecurityKey){
+            return NoContent();
+        }
 
         return Unauthorized();
     }
@@ -53,9 +56,10 @@ public class AuthenticationController : ControllerBase
     private bool IsValidUser(string username)
     {
         var user = this._uServiceDBContext.Users.FirstOrDefault(item => item.Login == username);
-
         return user != null ? true : false;
     }
+
+ 
 
     private string GenerateJwtToken(string username)
     {

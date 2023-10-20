@@ -56,6 +56,30 @@ public class UserController : ControllerBase
         return user != null ? true : false;
     }
 
+    private bool ExistUser(string username)
+    {
+        var user = this._uServiceDBContext.Users.FirstOrDefault(item => item.Login == username);
+
+        return user != null ? true : false;
+    }
+    
+    // [Authorize]
+    [HttpPost("CreateUser")]
+    public IActionResult CreateUser([FromBody] User user)
+    {
+        if (user == null)
+        {
+            return BadRequest("El objeto Usuario es nulo");
+        }else if (ExistUser(user.Login)){
+
+            return StatusCode(Conflict().StatusCode,user);
+        }
+
+        this._uServiceDBContext.Users.Add(user);
+        this._uServiceDBContext.SaveChanges();
+
+        return StatusCode(201,user);
+    }
   
 }
 
